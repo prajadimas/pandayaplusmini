@@ -17,7 +17,9 @@ const store = require('data-store')({
 	path: path.resolve(__dirname, 'config', 'app.json')
 })
 const port = process.env.PORT || 50105
-const offButton = new gpio(19,'in', 'both')
+const offButton = new gpio(21,'in', 'both')
+
+var socketClient = []
 
 /* SerialPort.list()
 .then(list => {
@@ -152,9 +154,34 @@ app.use((err, req, res, next) => {
 	})
 })
 
+io.on('connection', (socket) => {
+	socket.on('client', (data) => {
+		console.log('Client Connected: ', data)
+		socketClient.push({
+			client: data,
+			_id: socket.id
+		})
+		socket.emit('config', { address: 0x45 })
+		console.log('Client: ', socketClient)
+	})
+	socket.on('data', (data) => {
+		data['device'] = socketClient.find(({ _id }) => _id === socket.id).client
+		console.log('Data: ', data)
+	})
+	socket.on('disconnect', () => {
+		console.log('Client Disconnected: ', socket.id)
+		for (var i = 0; i < socketClient.length; i++) {
+			if (socketClient[i]._id === socket.id) {
+				socketClient.splice(i, 1)
+				break
+			}
+		}
+		console.log('Client: ', socketClient)
+	})
+})
+
 http.listen(port, '0.0.0.0', () => {
 	console.log('service is listening on ' + ip.address().toString() + ' port ' + port.toString())
 })
-
 
 
