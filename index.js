@@ -5,25 +5,54 @@ const bodyParser = require('body-parser')
 const createError = require('http-errors')
 const helmet = require('helmet')
 const path = require('path')
-const SerialPort = require('serialport')
 const ip = require('ip')
+const SerialPort = require('serialport')
+const Wifi = require('rpi-wifi-connection')
 const { exec } = require('child_process')
 const gpio = require('onoff').Gpio
 require('dotenv').config()
 
+const wifi = new Wifi()
 const store = require('data-store')({
 	path: path.resolve(__dirname, 'config', 'app.json')
 })
 const port = process.env.PORT || 50105
 const offButton = new gpio(19,'in', 'both')
 
-SerialPort.list()
+/* SerialPort.list()
 .then(list => {
 	console.log(list)
 })
 .catch(err => {
 	console.error(err)
-})
+}) */
+
+/* var serialPort = new SerialPort('/dev/ttyS0', {
+	baudRate: 19200
+}, function (err) {
+	if (err) {
+		console.error(err)
+	} else {
+		serialPort.on('data', function (data) {
+			console.log('Data: ', data.toString('utf-8'))
+		})
+	}
+}) */
+
+// Wifi connection function
+function wifiConnect(opts) {
+	var opts = opts || {}
+	return new Promise((resolve, reject) => {
+		wifi.connect({ ssid: opts.ssid, psk: opts.psk })
+		.then(() => {
+			resolve('success')
+		})
+		.catch((err) => {
+			console.error(err)
+			reject(err)
+		})
+	})	
+}
 
 // Create shutdown function
 function shutdown(callback) {
@@ -47,6 +76,17 @@ function shutdown(callback) {
 	} else {
 		console.log(output)
 	}
+}) */
+
+/* wifiConnect({
+	ssid: 'SSID Input',
+	psk: 'SSID Pass'
+})
+.then((res) => {
+	console.log(res + ' connect to network')
+})
+.catch((err) => {
+	console.error(err)
 }) */
 
 offButton.watch(function (err, value) {
