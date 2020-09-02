@@ -167,6 +167,12 @@ io.on('connection', (socket) => {
 	socket.on('data', (data) => {
 		data['device'] = socketClient.find(({ _id }) => _id === socket.id).client
 		console.log('Data: ', data)
+		for (var i = 0; i < socketClient.length; i++) {
+			if (socketClient[i].client.includes('antares')) {
+				io.to(socketClient[i]._id).emit('data', data)
+			}
+	
+		}
 	})
 	socket.on('disconnect', () => {
 		console.log('Client Disconnected: ', socket.id)
