@@ -9,9 +9,42 @@ const ip = require('ip')
 // const SerialPort = require('serialport')
 const Wifi = require('rpi-wifi-connection')
 const { exec } = require('child_process')
-const gpio = require('onoff').Gpio
+const rpio = require('rpio')
 const Bluetooth = require('bluetooth-serial-port')
+var pinUsed = []
 require('dotenv').config()
+
+// config pins
+const A1 = {
+	address: 0x4B,
+	channel: 1
+}
+const A2 = {
+	address: 0x4B,
+	channel: 2
+}
+const A3 = {
+	address: 0x4B,
+	channel: 3
+}
+const A4 = {
+	address: 0x4A,
+	channel: 1
+}
+const A5 = {
+	address: 0x4A,
+	channel: 2
+}
+const A6 = {
+	address: 0x4A,
+	channel: 3
+}
+const D1 = 4 
+const D2 = 17
+const D3 = 27
+const D4 = 22
+const D5 = 23
+const D6 = 24
 
 // initiate class instance
 const btSerial = new Bluetooth.BluetoothSerialPort()
@@ -21,9 +54,15 @@ const wifi = new Wifi()
 const store = require('data-store')({
 	path: path.resolve(__dirname, 'config', 'app.json')
 })
+// init rpio
+rpio.init({
+	gpiomem: true,
+	mapping: 'gpio',
+	close_on_exit: true
+})
 
 const port = process.env.PORT || 50105
-const offButton = new gpio(21,'in', 'both')
+rpio.open(21, rpio.INPUT, rpio.PULL_DOWN)
 
 var socketClient = []
 
@@ -53,6 +92,7 @@ setTimeout(function () {
 						// console.log('Message: ', JSON.parse(buffer.toString()))	
 						var wifiStr = buffer.toString()
 						var wifi = JSON.parse(wifiStr)
+						console.log('WIFI: ', wifi)	
 						if (wifi['ssid'] && wifi['psk'] && wifi['appsAddress']) {
 							store.set('connect', wifi['appsAddress'])
 							store.load()
@@ -165,10 +205,11 @@ function shutdown(callback) {
 }
 
 // watch power button event
-offButton.watch(function (err, value) {
-	console.log('shutdown initiated')
-	if (value == 1) {
+function pollcb(cbpin) {
+	var state = rpio.read(cbpin) ? 'released' : 'pressed'
+	if (state === 'pressed') {
 		// poweroff device
+		console.log('shutdown initiated')
 		shutdown(function (err, output) {
 			if (err) {
 				console.error(err)
@@ -177,7 +218,9 @@ offButton.watch(function (err, value) {
 			}
 		})
 	}
-})
+
+}
+rpio.poll(21, pollcb)
 
 app.use(bodyParser.urlencoded({ limit: '1mb', extended: true }))
 app.use(bodyParser.json({ limit: '1mb', extended: true }))
@@ -237,6 +280,7 @@ io.on('connection', (socket) => {
 			client: data,
 			_id: socket.id
 		})
+		console.log('Config: ', store.get('config'))
 		console.log('Client Connected: ', socketClient)
 	})
 	socket.on('data', (data) => {

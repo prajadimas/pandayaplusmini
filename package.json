@@ -23,8 +23,8 @@
     "helmet": "^4.1.0",
     "http-errors": "^1.8.0",
     "ip": "^1.1.5",
-    "onoff": "^6.0.0",
     "rpi-wifi-connection": "^1.0.17",
+    "rpio": "^2.2.0",
     "serialport": "^9.0.1",
     "socket.io": "^2.3.0"
   }
