@@ -11,7 +11,7 @@ const Wifi = require('rpi-wifi-connection')
 const { exec } = require('child_process')
 const rpio = require('rpio')
 const Bluetooth = require('bluetooth-serial-port')
-var pinUsed = []
+var moduleUsed = {}
 require('dotenv').config()
 
 // config pins
@@ -280,7 +280,107 @@ io.on('connection', (socket) => {
 			client: data,
 			_id: socket.id
 		})
-		console.log('Config: ', store.get('config'))
+		moduleUsed = store.get('config')
+		console.log('Config: ', moduleUsed)
+		for (var i = 0; i < Object.keys(moduleUsed).length; i++) {
+			console.log(Object.keys(moduleUsed)[i] + ' Config: ', moduleUsed[Object.keys(moduleUsed)[i]])
+			switch (Object.keys(moduleUsed)[i]) {
+				case 'A1':
+					if (data === moduleUsed[Object.keys(moduleUsed)[i]].module.name) {
+						var optConf = moduleUsed[Object.keys(moduleUsed)[i]].opts
+						optConf['address'] = A1['address']
+						optConf['channel'] = A1['channel']
+						io.to(socket.id).emit('config', optConf)
+					}
+					break
+				case 'A2':
+					if (data === moduleUsed[Object.keys(moduleUsed)[i]].module.name) {
+						var optConf = moduleUsed[Object.keys(moduleUsed)[i]].opts
+						optConf['address'] = A2['address']
+						optConf['channel'] = A2['channel']
+						io.to(socket.id).emit('config', optConf)
+					}
+					break
+				case 'A3':
+					if (data === moduleUsed[Object.keys(moduleUsed)[i]].module.name) {
+						var optConf = moduleUsed[Object.keys(moduleUsed)[i]].opts
+						optConf['address'] = A3['address']
+						optConf['channel'] = A3['channel']
+						io.to(socket.id).emit('config', optConf)
+					}
+					break
+				case 'A4':
+					if (data === moduleUsed[Object.keys(moduleUsed)[i]].module.name) {
+						var optConf = moduleUsed[Object.keys(moduleUsed)[i]].opts
+						optConf['address'] = A4['address']
+						optConf['channel'] = A4['channel']
+						io.to(socket.id).emit('config', optConf)
+					}
+					break
+				case 'A5':
+					if (data === moduleUsed[Object.keys(moduleUsed)[i]].module.name) {
+						var optConf = moduleUsed[Object.keys(moduleUsed)[i]].opts
+						optConf['address'] = A5['address']
+						optConf['channel'] = A5['channel']
+						io.to(socket.id).emit('config', optConf)
+					}
+					break
+				case 'A6':
+					if (data === moduleUsed[Object.keys(moduleUsed)[i]].module.name) {
+						var optConf = moduleUsed[Object.keys(moduleUsed)[i]].opts
+						optConf['address'] = A6['address']
+						optConf['channel'] = A6['channel']
+						io.to(socket.id).emit('config', optConf)
+					}
+					break
+				case 'D1':
+					if (data === moduleUsed[Object.keys(moduleUsed)[i]].module.name) {
+						var optConf = moduleUsed[Object.keys(moduleUsed)[i]].opts
+						optConf['pin'] = D1
+						io.to(socket.id).emit('config', optConf)
+					}
+					break
+				case 'D2':
+					if (data === moduleUsed[Object.keys(moduleUsed)[i]].module.name) {
+						var optConf = moduleUsed[Object.keys(moduleUsed)[i]].opts
+						optConf['pin'] = D2
+						io.to(socket.id).emit('config', optConf)
+					}
+					break
+				case 'D3':
+					if (data === moduleUsed[Object.keys(moduleUsed)[i]].module.name) {
+						var optConf = moduleUsed[Object.keys(moduleUsed)[i]].opts
+						optConf['pin'] = D3
+						io.to(socket.id).emit('config', optConf)
+					}
+					break
+				case 'D4':
+					if (data === moduleUsed[Object.keys(moduleUsed)[i]].module.name) {
+						var optConf = moduleUsed[Object.keys(moduleUsed)[i]].opts
+						optConf['pin'] = D4
+						io.to(socket.id).emit('config', optConf)
+					}
+					break
+				case 'D5':
+					if (data === moduleUsed[Object.keys(moduleUsed)[i]].module.name) {
+						var optConf = moduleUsed[Object.keys(moduleUsed)[i]].opts
+						optConf['pin'] = D5
+						io.to(socket.id).emit('config', optConf)
+					}
+					break
+				case 'D6':
+					if (data === moduleUsed[Object.keys(moduleUsed)[i]].module.name) {
+						var optConf = moduleUsed[Object.keys(moduleUsed)[i]].opts
+						optConf['pin'] = D6
+						io.to(socket.id).emit('config', optConf)
+					}
+					break
+				default:
+					if (data === moduleUsed[Object.keys(moduleUsed)[i]].module.name) {
+						io.to(socket.id).emit('config', moduleUsed[Object.keys(moduleUsed)[i]].opts)
+					}
+			}
+		}
 		console.log('Client Connected: ', socketClient)
 	})
 	socket.on('data', (data) => {
